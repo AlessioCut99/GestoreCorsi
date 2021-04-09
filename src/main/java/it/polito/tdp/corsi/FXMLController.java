@@ -11,6 +11,7 @@ import java.util.ResourceBundle;
 
 import it.polito.tdp.corsi.model.Corso;
 import it.polito.tdp.corsi.model.Model;
+import it.polito.tdp.corsi.model.Studente;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -71,9 +72,23 @@ public class FXMLController {
     	}
     	
     	List<Corso> corsi = this.model.getCorsoByPeriodo(periodo);
+    	/*
     	for(Corso c: corsi) {
     		txtRisultato.appendText(c.toString() + "\n");
+    	}*/
+    	
+    	txtRisultato.setStyle("-fx-font-family: monospace"); //per stampare in maniera ordinata nella colonna
+    														//sarebbe piu corretto inserirlo alla fine in set model per esempio
+    														// per non richiamarlo sempre
+    	StringBuilder sb = new StringBuilder();
+    	for(Corso c: corsi) {
+    		sb.append(String.format("%-8s", c.getCodins())); //% serve per dire che c'è un playsolver ,gli spazi, e il meno serve per dire che quello che scrivo sarà allineato a sinistra
+    		sb.append(String.format("%-4d", c.getCrediti()));
+    		sb.append(String.format("%-50s", c.getNome()));		//d sta per intero
+    		sb.append(String.format("%-4d\n", c.getPd()));
     	}
+    	
+    	txtRisultato.appendText(sb.toString());
     }
 
     @FXML
@@ -106,15 +121,51 @@ public class FXMLController {
     	}
     }
 
-    @FXML
-    void stampaDivisione(ActionEvent event) {
-
-    }
+    
 
     @FXML
     void stampaStudenti(ActionEvent event) {
 
+    	txtRisultato.clear();
+    	
+    	String codice = txtCorso.getText();
+    	
+    	if(!model.esisteCorso(codice)) {
+    		txtRisultato.appendText("Il corso non esiste");
+    		return;
+    	}
+    	
+    	List<Studente> studenti = model.getStudentiByCorso(codice);
+    	
+    	if(studenti.size() == 0 ) {
+    		txtRisultato.appendText("Il corso non ha iscritti");
+    		return;
+    	}
+    	
+    	for(Studente s: studenti) {
+    		txtRisultato.appendText(s + "\n");
+    	}
+    	
     }
+    
+    @FXML
+    void stampaDivisione(ActionEvent event) {
+
+    	txtRisultato.clear();
+    	
+    	String codice = txtCorso.getText();
+    	
+    	if(!model.esisteCorso(codice)) {
+    		txtRisultato.appendText("Il corso non esiste");
+    		return;
+    	}
+    	Map<String , Integer> divisione = model.getDivisioneCorsiCDS(codice);
+    	
+    	for(String cds : divisione.keySet()) {
+    		txtRisultato.appendText(cds + " "+ divisione.get(cds)+ "\n");
+    	}
+    }
+    
 
     @FXML // This method is called by the FXMLLoader when initialization is complete
     void initialize() {
